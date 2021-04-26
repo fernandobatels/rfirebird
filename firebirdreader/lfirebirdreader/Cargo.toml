@@ -1,0 +1,11 @@
+[package]
+name = "lfirebirdreader"
+version = "0.1.0"
+authors = ["Luis Fernando Batels <luisfbatels@gmail.com>"]
+edition = "2018"
+description = "Provides a raw access to firebird database file"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rsfbclient-core = "0.16.0"
