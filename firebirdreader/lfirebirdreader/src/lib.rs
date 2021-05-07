@@ -1,7 +1,9 @@
+
+mod database;
+mod table;
+
+pub use database::Database;
+pub use table::Table;
+
 #[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub mod tests;
