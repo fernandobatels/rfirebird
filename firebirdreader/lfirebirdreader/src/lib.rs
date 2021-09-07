@@ -1,6 +1,7 @@
 
 mod database;
 mod table;
+mod page;
 
 pub use database::Database;
 pub use table::Table;
