@@ -1,6 +1,6 @@
 //! Firebird database representation
 
-use std::io::{Read, BufReader};
+use std::io::{Read, BufReader, BufRead};
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::fs::File;
@@ -28,6 +28,8 @@ impl Database {
             HeaderPage::from_bytes(tag)?
         };
 
+        buffer.borrow_mut().consume((header.page_size - 1024).into());
+
         Ok(Self {
             header,
             buffer
@@ -44,6 +46,6 @@ impl Database {
     }
 
     pub fn tables(&mut self) -> Result<Vec<Table>, FbError> {
-        Table::all()
+        Table::load(self.header, &mut self.buffer.borrow_mut())
     }
 }
