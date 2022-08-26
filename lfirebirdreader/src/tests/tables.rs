@@ -1,19 +1,15 @@
-
 use crate::{Database, Table};
 use rsfbclient_core::FbError;
 
 #[test]
-fn list_tables() -> Result<(), FbError>{
-
+fn list_tables() -> Result<(), FbError> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;
     assert_eq!(61, tables.len());
 
     // user tables
-    let tables: Vec<Table> = tables.into_iter()
-        .filter(|t| !t.is_system_table)
-        .collect();
+    let tables: Vec<Table> = tables.into_iter().filter(|t| !t.is_system_table).collect();
     assert_eq!(11, tables.len());
 
     let tab0 = &tables[0];
