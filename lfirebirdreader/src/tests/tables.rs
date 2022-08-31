@@ -14,10 +14,15 @@ fn list_tables() -> Result<(), FbError> {
 
     let tab0 = &tables[0];
     assert_eq!("COUNTRY", tab0.name);
+    assert_eq!(128, tab0.relation);
+
     let tab1 = &tables[1];
     assert_eq!("JOB", tab1.name);
+    assert_eq!(129, tab1.relation);
+
     let tab10 = &tables[10];
     assert_eq!("SALES", tab10.name);
+    assert_eq!(138, tab10.relation);
 
     Ok(())
 }

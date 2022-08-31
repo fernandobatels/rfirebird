@@ -3,6 +3,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::rc::Rc;
+use std::slice::Iter;
 
 use rsfbclient_core::FbError;
 
@@ -37,11 +38,12 @@ impl Table {
                     let bname = &rec_data[42..72];
                     let name = String::from_utf8_lossy(&bname).trim().to_string();
                     let is_system_table = name.to_lowercase().contains("$");
+                    let relation = rec_data[32] as u16;
 
                     tables.push(Table {
                         name,
                         is_system_table,
-                        relation: data.relation,
+                        relation,
                         pages: pages.clone(),
                     })
                 }
@@ -59,6 +61,9 @@ impl Table {
 
 /// Preparated table for rows acesss
 pub struct TablePreparated<'a> {
+    pages: Iter<'a, DataPage>,
+    current_page: Option<&'a DataPage>,
+    current_record_idx: usize,
     table: &'a Table,
     pub columns: Vec<Column>,
 }
@@ -73,12 +78,12 @@ impl<'a> TablePreparated<'a> {
                 for rec in data.get_records()? {
                     let rec_data = rec.read()?;
 
-                    if rec_data.len() < 65 {
+                    if rec_data.len() < 66 {
                         continue;
                     }
 
                     // RDB$RELATION_NAME field
-                    let brname = &rec_data[35..65];
+                    let brname = &rec_data[35..66];
                     let rname = String::from_utf8_lossy(&brname).trim().to_string();
 
                     if rname != table.name {
@@ -86,28 +91,116 @@ impl<'a> TablePreparated<'a> {
                     }
 
                     // RDB$FIELD_NAME field
-                    let bfname = &rec_data[4..34];
+                    let bfname = &rec_data[4..35];
                     let fname = String::from_utf8_lossy(&bfname).trim().to_string();
+
+                    // RDB$FIELD_SOURCE field
+                    let bsource = &rec_data[65..96];
+                    let source = String::from_utf8_lossy(&bsource).trim().to_string();
+
+                    let mut size = 0;
+
+                    // Firebird have a specific table to storage
+                    // the infos about columns types
+                    for fdata in table.pages.iter() {
+                        // RDB$FIELDS table
+                        if fdata.relation == 2 {
+                            for frec in fdata.get_records()? {
+                                let frec_data = frec.read()?;
+
+                                if frec_data.len() < 30 {
+                                    continue;
+                                }
+
+                                let bfield = &frec_data[4..35];
+                                let field = String::from_utf8_lossy(&bfield).trim().to_string();
+
+                                if field != source {
+                                    continue;
+                                }
+
+                                let bsize = &frec_data[120..121];
+                                size = bsize[0] as usize;
+                            }
+                        }
+                    }
 
                     // RDB$FIELD_POSITION field
                     let bposition = &rec_data[290..291];
-                    let position = bposition[0] as u16;
+                    let position = bposition[0] as usize;
 
                     columns.push(Column {
                         name: fname,
                         position,
+                        size,
+                        source,
                     });
                 }
             }
         }
 
-        Ok(TablePreparated { table, columns })
+        let pages = table.pages.iter();
+
+        Ok(TablePreparated {
+            columns,
+            table,
+            pages,
+            current_record_idx: 0,
+            current_page: None
+        })
+    }
+
+    /// Return a row from the table using a cursor
+    pub fn read(&mut self) -> Result<Option<Vec<Vec<u8>>>, FbError> {
+
+        if let Some(data) = self.current_page {
+            self.current_record_idx = self.current_record_idx + 1;
+            if self.current_record_idx >= data.records.len() {
+                self.current_page = None;
+            }
+        }
+
+        if self.current_page.is_none() {
+            while let Some(data) = self.pages.next() {
+                if data.relation == self.table.relation {
+                    self.current_page = Some(data);
+                    self.current_record_idx = 0;
+                }
+            }
+
+            if self.current_page.is_none() {
+                return Ok(None);
+            }
+        }
+
+        if let Some(data) = self.current_page {
+            let idx = data.records[self.current_record_idx];
+            if let Some(rec) = data.get_record(idx)? {
+
+                let rec_data = rec.read()?;
+
+                let mut row = vec![];
+
+                let mut readed = 4;
+                for col in &self.columns {
+                    let bcol = &rec_data[readed..(readed + col.size)];
+                    row.push(bcol.to_vec());
+                    readed = readed + col.size;
+                }
+
+                return Ok(Some(row));
+            }
+        }
+
+        Ok(None)
     }
 }
 
 /// Column definion
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Column {
     pub name: String,
-    pub position: u16,
+    pub position: usize,
+    pub source: String,
+    pub size: usize,
 }
