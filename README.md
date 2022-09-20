@@ -13,3 +13,9 @@ This is a study and demonstration project. Only use this project with offline co
 - [ ] Support firebird 2.0 files
 - [x] Support firebird 3.0 files
 - [ ] Support firebird 4.0 files
+
+## References
+
+- https://firebirdsql.org/file/documentation/html/en/firebirddocs/firebirdinternals/firebird-internals.html#fbint-introduction
+- https://firebirdsql.org/manual/fbint-structure.html
+- https://ib-aid.com/download/docs/firebird-language-reference-2.5/fblangref-appx04-fields.html
