@@ -1,5 +1,5 @@
 [package]
-name = "firebirdreader"
+name = "rfirebird"
 version = "0.1.0"
 authors = ["Luis Fernando Batels <luisfbatels@gmail.com>"]
 edition = "2021"

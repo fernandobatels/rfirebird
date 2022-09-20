@@ -1,4 +1,4 @@
-# Firebird tool for raw access the database files
+# rfirebird - Firebird tool for raw access the database files
 
 This is a study and demonstration project. Only use this project with offline copy of your database file.
 
@@ -13,6 +13,11 @@ This is a study and demonstration project. Only use this project with offline co
 - [ ] Support firebird 2.0 files
 - [x] Support firebird 3.0 files
 - [ ] Support firebird 4.0 files
+
+CLI 
+- [ ] Open .fdb files
+- [ ] List tables
+- [ ] Show records of a table
 
 ## References
 
