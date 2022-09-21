@@ -9,3 +9,17 @@ description = "Provides a raw access to firebird database file"
 
 [dependencies]
 rsfbclient-core = "0.17.0"
+argopt = { version = "0.3.0", optional = true }
+tabled = { version = "0.8.0", optional = true }
+
+[features]
+default = ["cli"]
+cli = ["dep:argopt", "dep:tabled"]
+
+[[bin]]
+name = "rfirebird"
+required-features = ["cli"]
+
+[lib]
+name = "rfirebird"
+crate-type = ["lib"]
