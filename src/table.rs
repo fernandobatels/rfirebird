@@ -3,6 +3,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::rc::Rc;
+use std::fmt;
 use std::slice::Iter;
 use byteorder::{ByteOrder, LittleEndian};
 use num_enum::TryFromPrimitive;
@@ -236,4 +237,10 @@ pub enum ColumnType {
     Timestamp = 35,
     Varchar = 37,
     Blob = 261
+}
+
+impl fmt::Display for ColumnType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }

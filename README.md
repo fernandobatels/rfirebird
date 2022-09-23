@@ -15,8 +15,8 @@ This is a study and demonstration project. Only use this project with offline co
 - [ ] Support firebird 4.0 files
 
 CLI 
-- [ ] Open .fdb files
-- [ ] List tables
+- [x] Open .fdb files
+- [x] List tables
 - [ ] Show records of a table
 
 ## References

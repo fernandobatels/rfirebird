@@ -3,9 +3,9 @@ use tabled::{Tabled, Table as TabledTable, Style};
 use argopt::{subcmd, cmd_group};
 use rsfbclient_core::FbError;
 
-use rfirebird::{Database, Table};
+use rfirebird::{Database, ColumnType};
 
-#[cmd_group(commands = [tables])]
+#[cmd_group(commands = [tables, columns])]
 fn main() -> Result<(), FbError> {
 }
 
@@ -23,7 +23,11 @@ fn tables(
 
     let data = tables.iter()
         .filter(|t| !t.is_system_table || system_tables == "y")
-        .map(|t| TablePrintable::new(t));
+        .map(|t| TablePrintable {
+            name: t.name.clone(),
+            is_system_table: t.is_system_table,
+            relation: t.relation
+        });
 
     let printable = TabledTable::new(data)
         .with(Style::psql())
@@ -34,6 +38,45 @@ fn tables(
     Ok(())
 }
 
+/// Show columns of a database table
+#[subcmd]
+fn columns(
+    file: String,
+    table: String
+) -> Result<(), FbError> {
+
+    let mut db = Database::open_file(&file)?;
+
+    let tables = db.tables()?;
+
+    let otable = tables.into_iter()
+        .find(|t| t.name.to_lowercase() == table.to_lowercase().trim());
+
+    if let Some(table) = otable {
+
+        let ptable = table.prepare()?;
+
+        let data = ptable.columns.iter()
+            .map(|c| ColumnPrintable {
+                name: c.name.clone(),
+                position: c.position,
+                size: c.size,
+                tp: c.tp.clone(),
+                scale: c.scale
+            });
+
+        let printable = TabledTable::new(data)
+            .with(Style::psql())
+            .to_string();
+
+        println!("{}", printable);
+
+        return Ok(());
+    }
+
+    return Err(FbError::from("Table not found"));
+}
+
 #[derive(Tabled)]
 struct TablePrintable {
     pub name: String,
@@ -41,12 +84,12 @@ struct TablePrintable {
     pub relation: u16,
 }
 
-impl TablePrintable {
-    fn new(table: &Table) -> TablePrintable {
-        TablePrintable {
-            name: table.name.clone(),
-            is_system_table: table.is_system_table,
-            relation: table.relation
-        }
-    }
+#[derive(Tabled)]
+pub struct ColumnPrintable {
+    pub position: usize,
+    pub name: String,
+    pub size: usize,
+    #[tabled(rename = "type")]
+    pub tp: ColumnType,
+    pub scale: i16
 }
