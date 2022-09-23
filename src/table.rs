@@ -4,6 +4,9 @@ use std::fs::File;
 use std::io::BufReader;
 use std::rc::Rc;
 use std::slice::Iter;
+use byteorder::{ByteOrder, LittleEndian};
+use num_enum::TryFromPrimitive;
+use std::convert::TryFrom;
 
 use rsfbclient_core::FbError;
 
@@ -99,6 +102,8 @@ impl<'a> TablePreparated<'a> {
                     let source = String::from_utf8_lossy(&bsource).trim().to_string();
 
                     let mut size = 0;
+                    let mut scale = 0;
+                    let mut tp = ColumnType::Smallint;
 
                     // Firebird have a specific table to storage
                     // the infos about columns types
@@ -121,6 +126,14 @@ impl<'a> TablePreparated<'a> {
 
                                 let bsize = &frec_data[120..121];
                                 size = bsize[0] as usize;
+
+                                let bscale = &frec_data[122..124];
+                                scale = LittleEndian::read_i16(bscale);
+
+                                let btype = &frec_data[124..126];
+                                let ptype = LittleEndian::read_i16(btype);
+                                tp = ColumnType::try_from(ptype)
+                                    .map_err(|e| FbError::from(e.to_string()))?;
                             }
                         }
                     }
@@ -134,6 +147,8 @@ impl<'a> TablePreparated<'a> {
                         position,
                         size,
                         source,
+                        scale,
+                        tp
                     });
                 }
             }
@@ -203,4 +218,22 @@ pub struct Column {
     pub position: usize,
     pub source: String,
     pub size: usize,
+    pub scale: i16,
+    pub tp: ColumnType
+}
+
+#[derive(Debug, Eq, PartialEq, TryFromPrimitive, Clone)]
+#[repr(i16)]
+pub enum ColumnType {
+    Smallint = 7,
+    Integer = 8,
+    Float = 10,
+    Date = 12,
+    Time = 13,
+    Char = 14,
+    Bigint = 16,
+    DoublePrecision = 27,
+    Timestamp = 35,
+    Varchar = 37,
+    Blob = 261
 }

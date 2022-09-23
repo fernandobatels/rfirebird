@@ -5,7 +5,7 @@ mod record;
 mod table;
 
 pub use database::Database;
-pub use table::{Column, Table};
+pub use table::{Column, ColumnType, Table};
 
 #[cfg(test)]
 pub mod tests;

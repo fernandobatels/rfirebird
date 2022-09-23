@@ -11,6 +11,8 @@ description = "Provides a raw access to firebird database file"
 rsfbclient-core = "0.17.0"
 argopt = { version = "0.3.0", optional = true }
 tabled = { version = "0.8.0", optional = true }
+byteorder = "1.4.3"
+num_enum = "0.5.7"
 
 [features]
 default = ["cli"]

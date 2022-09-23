@@ -1,4 +1,4 @@
-use crate::{Column, Database};
+use crate::{Column, ColumnType, Database};
 use rsfbclient_core::FbError;
 
 #[test]
@@ -19,16 +19,31 @@ fn columns_of_table() -> Result<(), FbError> {
             name: "DEPT_NO".to_string(),
             position: 0,
             size: 3,
-            source: "DEPTNO".to_string()
+            source: "DEPTNO".to_string(),
+            scale: 0,
+            tp: ColumnType::Char
         }),
         ptable.columns.first()
+    );
+    assert_eq!(
+        Column {
+            name: "BUDGET".to_string(),
+            position: 4,
+            size: 8,
+            source: "BUDGET".to_string(),
+            scale: -2,
+            tp: ColumnType::Bigint
+        },
+        ptable.columns[4]
     );
     assert_eq!(
         Some(&Column {
             name: "PHONE_NO".to_string(),
             position: 6,
             size: 20,
-            source: "PHONENUMBER".to_string()
+            source: "PHONENUMBER".to_string(),
+            scale: 0,
+            tp: ColumnType::Varchar
         }),
         ptable.columns.last()
     );
