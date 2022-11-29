@@ -7,17 +7,17 @@ This is a study and demonstration project. Only use this project with offline co
 - [x] Open database files
 - [x] Access tables
 - [ ] Read data rows
-- [ ] Export table as csv
 - [ ] Handle big database files
 - [ ] Support firebird 1.0 files
 - [ ] Support firebird 2.0 files
 - [x] Support firebird 3.0 files
 - [ ] Support firebird 4.0 files
 
-CLI 
+CLI
 - [x] Open .fdb files
 - [x] List tables
 - [ ] Show records of a table
+- [ ] Export table as csv
 
 ## References
 

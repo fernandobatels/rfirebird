@@ -3,16 +3,16 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::rc::Rc;
-use std::fmt;
 use std::slice::Iter;
 use byteorder::{ByteOrder, LittleEndian};
-use num_enum::TryFromPrimitive;
 use std::convert::TryFrom;
 
 use rsfbclient_core::FbError;
 
 use crate::data::*;
 use crate::page::*;
+use crate::row::*;
+use crate::column::*;
 
 /// Basic reference of a table
 #[derive(Debug)]
@@ -167,7 +167,7 @@ impl<'a> TablePreparated<'a> {
     }
 
     /// Return a row from the table using a cursor
-    pub fn read(&mut self) -> Result<Option<Vec<Vec<u8>>>, FbError> {
+    pub fn read(&mut self) -> Result<Option<Row>, FbError> {
 
         if let Some(data) = self.current_page {
             self.current_record_idx = self.current_record_idx + 1;
@@ -195,52 +195,12 @@ impl<'a> TablePreparated<'a> {
 
                 let rec_data = rec.read()?;
 
-                let mut row = vec![];
-
-                let mut readed = 4;
-                for col in &self.columns {
-                    let bcol = &rec_data[readed..(readed + col.size)];
-                    row.push(bcol.to_vec());
-                    readed = readed + col.size;
-                }
+                let row = Row::load(&self.columns, rec_data)?;
 
                 return Ok(Some(row));
             }
         }
 
         Ok(None)
-    }
-}
-
-/// Column definion
-#[derive(Debug, PartialEq, Clone)]
-pub struct Column {
-    pub name: String,
-    pub position: usize,
-    pub source: String,
-    pub size: usize,
-    pub scale: i16,
-    pub tp: ColumnType
-}
-
-#[derive(Debug, Eq, PartialEq, TryFromPrimitive, Clone)]
-#[repr(i16)]
-pub enum ColumnType {
-    Smallint = 7,
-    Integer = 8,
-    Float = 10,
-    Date = 12,
-    Time = 13,
-    Char = 14,
-    Bigint = 16,
-    DoublePrecision = 27,
-    Timestamp = 35,
-    Varchar = 37,
-    Blob = 261
-}
-
-impl fmt::Display for ColumnType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
     }
 }
