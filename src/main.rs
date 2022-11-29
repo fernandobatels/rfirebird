@@ -1,12 +1,12 @@
+//! Firebird raw reader
 
 use tabled::{Tabled, Table as TabledTable, Style};
 use argopt::{subcmd, cmd_group};
-use rsfbclient_core::FbError;
 
-use rfirebird::{Database, ColumnType};
+use rfirebird::{Database, ColumnType, Error};
 
 #[cmd_group(commands = [tables, columns])]
-fn main() -> Result<(), FbError> {
+fn main() -> Result<(), Error> {
 }
 
 /// Show all avaliable tables of the database
@@ -16,7 +16,7 @@ fn tables(
     /// Show system tables
     #[opt(long, default_value = "y")]
     system_tables: String
-) -> Result<(), FbError> {
+) -> Result<(), Error> {
     let mut db = Database::open_file(&file)?;
 
     let tables = db.tables()?;
@@ -43,7 +43,7 @@ fn tables(
 fn columns(
     file: String,
     table: String
-) -> Result<(), FbError> {
+) -> Result<(), Error> {
 
     let mut db = Database::open_file(&file)?;
 
@@ -74,7 +74,7 @@ fn columns(
         return Ok(());
     }
 
-    return Err(FbError::from("Table not found"));
+    return Err(Error::from("Table not found"));
 }
 
 #[derive(Tabled)]

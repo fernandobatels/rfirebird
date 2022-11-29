@@ -7,8 +7,7 @@ use std::slice::Iter;
 use byteorder::{ByteOrder, LittleEndian};
 use std::convert::TryFrom;
 
-use rsfbclient_core::FbError;
-
+use crate::Error;
 use crate::data::*;
 use crate::page::*;
 use crate::row::*;
@@ -25,7 +24,7 @@ pub struct Table {
 
 impl Table {
     /// Load all tables of database
-    pub fn load(header: HeaderPage, buffer: &mut BufReader<File>) -> Result<Vec<Table>, FbError> {
+    pub fn load(header: HeaderPage, buffer: &mut BufReader<File>) -> Result<Vec<Table>, Error> {
         let pages = Rc::new(DataPage::load(header, buffer)?);
         let mut tables = vec![];
 
@@ -58,7 +57,7 @@ impl Table {
     }
 
     /// Prepare the table for access its rows
-    pub fn prepare<'a>(&'a self) -> Result<TablePreparated<'a>, FbError> {
+    pub fn prepare<'a>(&'a self) -> Result<TablePreparated<'a>, Error> {
         TablePreparated::load(&self)
     }
 }
@@ -73,7 +72,7 @@ pub struct TablePreparated<'a> {
 }
 
 impl<'a> TablePreparated<'a> {
-    pub fn load(table: &'a Table) -> Result<Self, FbError> {
+    pub fn load(table: &'a Table) -> Result<Self, Error> {
         let mut columns = vec![];
 
         for data in table.pages.iter() {
@@ -134,7 +133,7 @@ impl<'a> TablePreparated<'a> {
                                 let btype = &frec_data[124..126];
                                 let ptype = LittleEndian::read_i16(btype);
                                 tp = ColumnType::try_from(ptype)
-                                    .map_err(|e| FbError::from(e.to_string()))?;
+                                    .map_err(|e| Error::from(e.to_string()))?;
                             }
                         }
                     }
@@ -167,7 +166,7 @@ impl<'a> TablePreparated<'a> {
     }
 
     /// Return a row from the table using a cursor
-    pub fn read(&mut self) -> Result<Option<Row>, FbError> {
+    pub fn read(&mut self) -> Result<Option<Row>, Error> {
 
         if let Some(data) = self.current_page {
             self.current_record_idx = self.current_record_idx + 1;

@@ -1,8 +1,7 @@
-use crate::{Database, Table};
-use rsfbclient_core::FbError;
+use crate::*;
 
 #[test]
-fn list_tables() -> Result<(), FbError> {
+fn list_tables() -> Result<(), Error> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;

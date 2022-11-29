@@ -2,7 +2,7 @@
 
 use std::ptr;
 
-use rsfbclient_core::FbError;
+use crate::Error;
 
 /// Standard Database Page Header
 ///
@@ -84,11 +84,11 @@ pub struct HeaderPage {
 }
 
 impl HeaderPage {
-    pub fn from_bytes(bytes: [u8; 1024]) -> Result<HeaderPage, FbError> {
+    pub fn from_bytes(bytes: [u8; 1024]) -> Result<HeaderPage, Error> {
         let hdr: HeaderPage = unsafe { ptr::read(bytes.as_ptr() as *const _) };
 
         if hdr.pag.ptype != 0x01 {
-            return Err(FbError::from("Invalid header page type"));
+            return Err(Error::InvalidPage { tpe: hdr.pag.ptype, expected: 0x01, desc: "header".to_string() });
         }
 
         Ok(hdr)

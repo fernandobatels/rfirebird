@@ -1,8 +1,7 @@
-use crate::{Column, ColumnType, Database};
-use rsfbclient_core::FbError;
+use crate::*;
 
 #[test]
-fn columns_of_table() -> Result<(), FbError> {
+fn columns_of_table() -> Result<(), Error> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;
@@ -52,7 +51,7 @@ fn columns_of_table() -> Result<(), FbError> {
 }
 
 #[test]
-fn reading_some_row() -> Result<(), FbError> {
+fn reading_some_row() -> Result<(), Error> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;

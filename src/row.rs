@@ -1,7 +1,6 @@
 //! Row definition and API
 
-use rsfbclient_core::FbError;
-
+use crate::Error;
 use crate::column::Column;
 
 /// Table row
@@ -11,7 +10,7 @@ pub struct Row {
 
 impl Row {
     /// Load and prepare the row
-    pub fn load(columns: &Vec<Column>, rec_data: Vec<u8>) -> Result<Self, FbError> {
+    pub fn load(columns: &Vec<Column>, rec_data: Vec<u8>) -> Result<Self, Error> {
         let mut raw = vec![];
 
         let mut readed = 4;

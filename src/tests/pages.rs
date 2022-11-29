@@ -1,8 +1,7 @@
-use crate::Database;
-use rsfbclient_core::FbError;
+use crate::*;
 
 #[test]
-fn header_page() -> Result<(), FbError> {
+fn header_page() -> Result<(), Error> {
     let db = Database::open_file("dbs/employee.fdb")?;
 
     assert_eq!(0x01, db.header.pag.ptype);

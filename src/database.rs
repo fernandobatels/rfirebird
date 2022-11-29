@@ -5,8 +5,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::rc::Rc;
 
-use rsfbclient_core::FbError;
-
+use crate::Error;
 use crate::page::HeaderPage;
 use crate::Table;
 
@@ -18,7 +17,7 @@ pub struct Database {
 
 impl Database {
     /// Read the database from a buffer
-    pub fn open(buffer: Rc<RefCell<BufReader<File>>>) -> Result<Database, FbError> {
+    pub fn open(buffer: Rc<RefCell<BufReader<File>>>) -> Result<Database, Error> {
         let header = {
             let mut tag = [0 as u8; 1024];
             buffer.borrow_mut().read_exact(&mut tag)?;
@@ -34,14 +33,14 @@ impl Database {
     }
 
     /// Read the database from a file with RO mode
-    pub fn open_file(fpath: &str) -> Result<Database, FbError> {
+    pub fn open_file(fpath: &str) -> Result<Database, Error> {
         let f = File::open(fpath).map_err(|e| e.to_string())?;
         let bfr = BufReader::new(f);
 
         Database::open(Rc::new(RefCell::new(bfr)))
     }
 
-    pub fn tables(&mut self) -> Result<Vec<Table>, FbError> {
+    pub fn tables(&mut self) -> Result<Vec<Table>, Error> {
         Table::load(self.header, &mut self.buffer.borrow_mut())
     }
 }

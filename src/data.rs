@@ -4,8 +4,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::ptr;
 
-use rsfbclient_core::FbError;
-
+use crate::Error;
 use crate::page::*;
 use crate::record::*;
 
@@ -54,15 +53,15 @@ pub struct DataPageRecord {
 
 impl DataPage {
     /// Parse the DataPage from bytes
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<DataPage, FbError> {
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<DataPage, Error> {
         if bytes[0] != 0x05 {
-            return Err(FbError::from("Invalid data page type"));
+            return Err(Error::InvalidPage { tpe: bytes[0], expected: 0x05, desc: "data".to_string() });
         }
 
         let rdata: DataPageRep = unsafe { ptr::read(bytes.as_ptr() as *const _) };
 
         if rdata.count > 512 {
-            return Err(FbError::from("Overflow supported records"));
+            return Err(Error::Overflow { limit: 512, value: rdata.count as usize, msg: "supported records".to_string() });
         }
 
         let mut records = rdata.records.to_vec();
@@ -84,7 +83,7 @@ impl DataPage {
     pub fn load(
         header: HeaderPage,
         buffer: &mut BufReader<File>,
-    ) -> Result<Vec<DataPage>, FbError> {
+    ) -> Result<Vec<DataPage>, Error> {
         let mut pgt = [0 as u8; 1];
         let mut pages = vec![];
 
@@ -107,7 +106,7 @@ impl DataPage {
     }
 
     /// Read all records of this data page
-    pub fn get_records(&self) -> Result<Vec<RecordHeader>, FbError> {
+    pub fn get_records(&self) -> Result<Vec<RecordHeader>, Error> {
         let mut records = vec![];
 
         for idx in self.records.clone() {
@@ -121,7 +120,7 @@ impl DataPage {
     }
 
     /// Read a specific record
-    pub fn get_record(&self, idx: DataPageRecord) -> Result<Option<RecordHeader>, FbError> {
+    pub fn get_record(&self, idx: DataPageRecord) -> Result<Option<RecordHeader>, Error> {
         if idx.length == 0 {
             return Ok(None);
         }

@@ -2,7 +2,7 @@
 
 use std::ptr;
 
-use rsfbclient_core::FbError;
+use crate::Error;
 
 /// Header for unfragmented firebird records
 #[derive(Debug, Clone)]
@@ -32,9 +32,9 @@ pub struct RecordHeaderRepr {
 }
 
 impl RecordHeader {
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<RecordHeader, FbError> {
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<RecordHeader, Error> {
         if bytes.len() > 1024 {
-            return Err(FbError::from("Overflow supported data on header"));
+            return Err(Error::Overflow { limit: 1024, value: bytes.len(), msg: "supported data on header".to_string() });
         }
 
         let rrecord: RecordHeaderRepr = unsafe { ptr::read(bytes.as_ptr() as *const _) };
@@ -55,7 +55,7 @@ impl RecordHeader {
     }
 
     /// Uncompress the data field
-    pub fn read(&self) -> Result<Vec<u8>, FbError> {
+    pub fn read(&self) -> Result<Vec<u8>, Error> {
         Ok(rle_decode(&self.data))
     }
 }
