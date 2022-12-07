@@ -1,57 +1,7 @@
 use crate::*;
 
 #[test]
-fn columns_of_table() -> Result<(), Error> {
-    let mut db = Database::open_file("dbs/employee.fdb")?;
-
-    let tables = db.tables()?;
-
-    let table = tables.into_iter().find(|t| t.name == "DEPARTMENT");
-    assert!(table.is_some());
-    let table = table.unwrap();
-
-    let ptable = table.prepare()?;
-
-    assert_eq!(7, ptable.columns.len());
-    assert_eq!(
-        Some(&Column {
-            name: "DEPT_NO".to_string(),
-            position: 0,
-            size: 3,
-            source: "DEPTNO".to_string(),
-            scale: 0,
-            tp: ColumnType::Char
-        }),
-        ptable.columns.first()
-    );
-    assert_eq!(
-        Column {
-            name: "BUDGET".to_string(),
-            position: 4,
-            size: 8,
-            source: "BUDGET".to_string(),
-            scale: -2,
-            tp: ColumnType::Bigint
-        },
-        ptable.columns[4]
-    );
-    assert_eq!(
-        Some(&Column {
-            name: "PHONE_NO".to_string(),
-            position: 6,
-            size: 20,
-            source: "PHONENUMBER".to_string(),
-            scale: 0,
-            tp: ColumnType::Varchar
-        }),
-        ptable.columns.last()
-    );
-
-    Ok(())
-}
-
-#[test]
-fn reading_some_row() -> Result<(), Error> {
+fn reading_some_row_raw() -> Result<(), Error> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;

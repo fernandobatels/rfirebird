@@ -101,6 +101,10 @@ impl<'a> TablePreparated<'a> {
                     let bsource = &rec_data[65..96];
                     let source = String::from_utf8_lossy(&bsource).trim().to_string();
 
+                    // RDB$NULL_FLAG
+                    let bnnull = &rec_data[392..393];
+                    let not_null = bnnull[0] == 1;
+
                     let mut size = 0;
                     let mut scale = 0;
                     let mut tp = ColumnType::Smallint;
@@ -148,6 +152,7 @@ impl<'a> TablePreparated<'a> {
                         size,
                         source,
                         scale,
+                        not_null,
                         tp
                     });
                 }

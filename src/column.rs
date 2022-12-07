@@ -11,7 +11,8 @@ pub struct Column {
     pub source: String,
     pub size: usize,
     pub scale: i16,
-    pub tp: ColumnType
+    pub tp: ColumnType,
+    pub not_null: bool
 }
 
 #[derive(Debug, Eq, PartialEq, TryFromPrimitive, Clone)]
