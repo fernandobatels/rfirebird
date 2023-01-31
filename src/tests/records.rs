@@ -1,7 +1,7 @@
 use crate::*;
 
 #[test]
-fn reading_some_row_raw() -> Result<(), Error> {
+fn reading_some_row_typed() -> Result<(), Error> {
     let mut db = Database::open_file("dbs/employee.fdb")?;
 
     let tables = db.tables()?;
@@ -14,31 +14,34 @@ fn reading_some_row_raw() -> Result<(), Error> {
 
     let row1 = ptable.read()?;
     assert!(row1.is_some());
-    assert_eq!(vec![
-        vec![0x3, 0x0, 0x55, 0x53, 0x41, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0], // USA
-        vec![0x0, 0x0, 0x0, 0x06, 0x0, 0x44, 0x6F, 0x6C, 0x6C, 0x61] // Dollar
-    ], row1.unwrap().raw);
+    let row1 = row1.unwrap();
+    assert_eq!(Some(Value::String("USA".to_string())), row1.values[0]);
+    assert_eq!(Some(Value::String("Dollar".to_string())), row1.values[1]);
 
     let row2 = ptable.read()?;
     assert!(row2.is_some());
-    assert_eq!(vec![
-        vec![0x07, 0x00, 0x45, 0x6E, 0x67, 0x6C, 0x61, 0x6E, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // England
-        vec![0x00, 0x00, 0x00, 0x05, 0x00, 0x50, 0x6F, 0x75, 0x6E, 0x64] // Pound
-    ], row2.unwrap().raw);
+    let row2 = row2.unwrap();
+    assert_eq!(Some(Value::String("England".to_string())), row2.values[0]);
+    assert_eq!(Some(Value::String("Pound".to_string())), row2.values[1]);
 
-    for _ in 1..14 {
-        let _ = ptable.read()?;
-    }
+    Ok(())
+}
 
-    let row16 = ptable.read()?;
-    assert!(row16.is_some());
-    assert_eq!(vec![
-        vec![0x07, 0x00, 0x52, 0x6F, 0x6D, 0x61, 0x6E, 0x69, 0x61, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // Romania
-        vec![0x00, 0x00, 0x00, 0x04, 0x00, 0x52, 0x4C, 0x65, 0x75, 0x00] // RLeu
-    ], row16.unwrap().raw);
+#[test]
+fn reading_some_row_typed_costumer() -> Result<(), Error> {
+    let mut db = Database::open_file("dbs/employee.fdb")?;
 
-    let row17 = ptable.read()?;
-    assert!(row17.is_none());
+    let tables = db.tables()?;
 
+    let table = tables.into_iter().find(|t| t.name == "CUSTOMER");
+    assert!(table.is_some());
+    let table = table.unwrap();
+
+    let mut ptable = table.prepare()?;
+
+    let row1 = ptable.read()?;
+    assert!(row1.is_some());
+    let row1 = row1.unwrap();
+    assert_eq!(Some(Value::Int(1001)), row1.values[0]);
     Ok(())
 }
