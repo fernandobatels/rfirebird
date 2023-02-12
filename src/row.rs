@@ -1,6 +1,7 @@
 //! Row definition and API
 
 use byteorder::{ByteOrder, LittleEndian};
+use std::fmt;
 
 use crate::Error;
 use crate::column::*;
@@ -97,6 +98,17 @@ pub enum Value {
     Int(i32),
     SmallInt(i16)
 }
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Value::String(v) => write!(f, "{}", v),
+            Value::Int(v) => write!(f, "{}", v),
+            Value::SmallInt(v) => write!(f, "{}", v),
+        }
+    }
+}
+
 
 fn parse_smallinteger(bytes: Vec<u8>) -> Result<Option<Value>, String> {
     let it = LittleEndian::read_i16(&bytes);

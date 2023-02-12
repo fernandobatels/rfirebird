@@ -1,11 +1,11 @@
 //! Firebird raw reader
 
-use tabled::{Tabled, Table as TabledTable, Style};
+use tabled::{Tabled, Table as TabledTable, Style, builder::Builder};
 use argopt::{subcmd, cmd_group};
 
 use rfirebird::{Database, ColumnType, Error};
 
-#[cmd_group(commands = [tables, columns])]
+#[cmd_group(commands = [tables, columns, rows])]
 fn main() -> Result<(), Error> {
 }
 
@@ -30,8 +30,7 @@ fn tables(
         });
 
     let printable = TabledTable::new(data)
-        .with(Style::psql())
-        .to_string();
+        .with(Style::psql());
 
     println!("{}", printable);
 
@@ -68,8 +67,54 @@ fn columns(
             });
 
         let printable = TabledTable::new(data)
-            .with(Style::psql())
-            .to_string();
+            .with(Style::psql());
+
+        println!("{}", printable);
+
+        return Ok(());
+    }
+
+    return Err(Error::from("Table not found"));
+}
+
+/// Show all rows values of a database table
+#[subcmd]
+fn rows(
+    file: String,
+    table: String
+) -> Result<(), Error> {
+
+    let mut db = Database::open_file(&file)?;
+
+    let tables = db.tables()?;
+
+    let otable = tables.into_iter()
+        .find(|t| t.name.to_lowercase() == table.to_lowercase().trim());
+
+    if let Some(table) = otable {
+
+        let mut ptable = table.prepare()?;
+        let mut builder = Builder::default();
+
+        let columns = ptable.columns.iter()
+            .map(|c| c.name.clone());
+        builder.set_columns(columns);
+
+        while let Some(row) = ptable.read()? {
+            let mut prow = vec![];
+
+            for cval in row.values {
+                prow.push(match cval {
+                    Some(val) => val.to_string(),
+                    None => "".to_string()
+                });
+            }
+
+            builder.add_record(prow);
+        }
+
+        let printable = builder.build()
+            .with(Style::psql());
 
         println!("{}", printable);
 
