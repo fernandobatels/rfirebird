@@ -4,9 +4,9 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::ptr;
 
-use crate::Error;
 use crate::page::*;
 use crate::record::*;
+use crate::Error;
 
 /// Data Page
 ///
@@ -55,13 +55,21 @@ impl DataPage {
     /// Parse the DataPage from bytes
     pub fn from_bytes(bytes: Vec<u8>) -> Result<DataPage, Error> {
         if bytes[0] != 0x05 {
-            return Err(Error::InvalidPage { tpe: bytes[0], expected: 0x05, desc: "data".to_string() });
+            return Err(Error::InvalidPage {
+                tpe: bytes[0],
+                expected: 0x05,
+                desc: "data".to_string(),
+            });
         }
 
         let rdata: DataPageRep = unsafe { ptr::read(bytes.as_ptr() as *const _) };
 
         if rdata.count > 512 {
-            return Err(Error::Overflow { limit: 512, value: rdata.count as usize, msg: "supported records".to_string() });
+            return Err(Error::Overflow {
+                limit: 512,
+                value: rdata.count as usize,
+                msg: "supported records".to_string(),
+            });
         }
 
         let mut records = rdata.records.to_vec();
@@ -80,10 +88,7 @@ impl DataPage {
     }
 
     /// Load all data pages of buffer
-    pub fn load(
-        header: HeaderPage,
-        buffer: &mut BufReader<File>,
-    ) -> Result<Vec<DataPage>, Error> {
+    pub fn load(header: HeaderPage, buffer: &mut BufReader<File>) -> Result<Vec<DataPage>, Error> {
         let mut pgt = [0 as u8; 1];
         let mut pages = vec![];
 

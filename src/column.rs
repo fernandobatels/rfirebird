@@ -13,7 +13,7 @@ pub struct Column {
     pub scale: i16,
     pub tp: ColumnType,
     pub not_null: bool,
-    pub computed: bool
+    pub computed: bool,
 }
 
 #[derive(Debug, Eq, PartialEq, TryFromPrimitive, Clone)]
@@ -29,7 +29,7 @@ pub enum ColumnType {
     DoublePrecision = 27,
     Timestamp = 35,
     Varchar = 37,
-    Blob = 261
+    Blob = 261,
 }
 
 impl fmt::Display for ColumnType {

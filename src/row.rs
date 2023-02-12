@@ -3,13 +3,13 @@
 use byteorder::{ByteOrder, LittleEndian};
 use std::fmt;
 
-use crate::Error;
 use crate::column::*;
+use crate::Error;
 
 /// Table row
 pub struct Row {
     pub raw: Vec<Vec<u8>>,
-    pub values: Vec<Option<Value>>
+    pub values: Vec<Option<Value>>,
 }
 
 impl Row {
@@ -20,7 +20,6 @@ impl Row {
 
         let mut readed = 4;
         for (icol, col) in columns.iter().enumerate() {
-
             if col.computed {
                 values.push(None);
                 continue;
@@ -50,13 +49,13 @@ impl Row {
                 // other timestamp, we get more 2 positions
                 let next = match columns.get(icol + 1) {
                     Some(ncol) => &ncol.tp,
-                    None => &ColumnType::Timestamp
+                    None => &ColumnType::Timestamp,
                 };
                 let prev = match columns.get(icol - 1) {
                     Some(ncol) => &ncol.tp,
-                    None => &ColumnType::Integer
+                    None => &ColumnType::Integer,
                 };
-                if next != &ColumnType::Timestamp && prev != &ColumnType::Timestamp{
+                if next != &ColumnType::Timestamp && prev != &ColumnType::Timestamp {
                     end = end + 2;
                 }
             }
@@ -75,19 +74,17 @@ impl Row {
                     .map_err(|e| Error::Other(format!("Parsing {} as char: {}", col.name, e)))?,
                 ColumnType::Integer if col.scale == 0 => parse_integer(bcol.to_vec())
                     .map_err(|e| Error::Other(format!("Parsing {} as integer: {}", col.name, e)))?,
-                ColumnType::Smallint => parse_smallinteger(bcol.to_vec())
-                    .map_err(|e| Error::Other(format!("Parsing {} as small integer: {}", col.name, e)))?,
-                _ => None
+                ColumnType::Smallint => parse_smallinteger(bcol.to_vec()).map_err(|e| {
+                    Error::Other(format!("Parsing {} as small integer: {}", col.name, e))
+                })?,
+                _ => None,
             };
             values.push(val);
 
             readed = end;
         }
 
-        Ok(Self {
-            values,
-            raw
-        })
+        Ok(Self { values, raw })
     }
 }
 
@@ -96,7 +93,7 @@ impl Row {
 pub enum Value {
     String(String),
     Int(i32),
-    SmallInt(i16)
+    SmallInt(i16),
 }
 
 impl fmt::Display for Value {
@@ -108,7 +105,6 @@ impl fmt::Display for Value {
         }
     }
 }
-
 
 fn parse_smallinteger(bytes: Vec<u8>) -> Result<Option<Value>, String> {
     let it = LittleEndian::read_i16(&bytes);
@@ -123,7 +119,6 @@ fn parse_integer(bytes: Vec<u8>) -> Result<Option<Value>, String> {
 }
 
 fn parse_char(size: usize, bytes: Vec<u8>) -> Result<Option<Value>, String> {
-
     let bytes = bytes[0..size].to_vec();
     let st = String::from_utf8(bytes)
         .map_err(|e| format!("Found column with an invalid UTF-8 string: {}", e))?;
@@ -137,7 +132,11 @@ fn parse_varchar(bytes: Vec<u8>) -> Result<Option<Value>, String> {
 
     let end = (bytes[0] + 2) as usize;
     if end > bytes.len() {
-        return Err(format!("Varchar size {} > {} buffer size", end, bytes.len()));
+        return Err(format!(
+            "Varchar size {} > {} buffer size",
+            end,
+            bytes.len()
+        ));
     }
     let bytes = bytes[2..end].to_vec();
 

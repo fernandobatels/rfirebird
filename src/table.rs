@@ -1,17 +1,17 @@
 //! Firebird table representation
 
+use byteorder::{ByteOrder, LittleEndian};
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::BufReader;
 use std::rc::Rc;
 use std::slice::Iter;
-use byteorder::{ByteOrder, LittleEndian};
-use std::convert::TryFrom;
 
-use crate::Error;
+use crate::column::*;
 use crate::data::*;
 use crate::page::*;
 use crate::row::*;
-use crate::column::*;
+use crate::Error;
 
 /// Basic reference of a table
 #[derive(Debug)]
@@ -158,7 +158,7 @@ impl<'a> TablePreparated<'a> {
                         scale,
                         not_null,
                         tp,
-                        computed
+                        computed,
                     });
                 }
             }
@@ -171,13 +171,12 @@ impl<'a> TablePreparated<'a> {
             table,
             pages,
             current_record_idx: 0,
-            current_page: None
+            current_page: None,
         })
     }
 
     /// Return a row from the table using a cursor
     pub fn read(&mut self) -> Result<Option<Row>, Error> {
-
         if let Some(data) = self.current_page {
             self.current_record_idx = self.current_record_idx + 1;
             if self.current_record_idx >= data.records.len() {
@@ -201,7 +200,6 @@ impl<'a> TablePreparated<'a> {
         if let Some(data) = self.current_page {
             let idx = data.records[self.current_record_idx];
             if let Some(rec) = data.get_record(idx)? {
-
                 let rec_data = rec.read()?;
 
                 let row = Row::load(&self.columns, rec_data)?;

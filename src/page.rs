@@ -88,7 +88,11 @@ impl HeaderPage {
         let hdr: HeaderPage = unsafe { ptr::read(bytes.as_ptr() as *const _) };
 
         if hdr.pag.ptype != 0x01 {
-            return Err(Error::InvalidPage { tpe: hdr.pag.ptype, expected: 0x01, desc: "header".to_string() });
+            return Err(Error::InvalidPage {
+                tpe: hdr.pag.ptype,
+                expected: 0x01,
+                desc: "header".to_string(),
+            });
         }
 
         Ok(hdr)

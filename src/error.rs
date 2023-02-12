@@ -8,13 +8,17 @@ pub enum Error {
     Io(#[from] std::io::Error),
 
     #[error("overflow {value} > {limit}: {msg}")]
-    Overflow { limit: usize, value: usize, msg: String },
+    Overflow {
+        limit: usize,
+        value: usize,
+        msg: String,
+    },
 
     #[error("Invalid {desc} page type, expected {expected}, found {tpe}")]
     InvalidPage { tpe: u8, expected: u8, desc: String },
 
     #[error("error: {0}")]
-    Other(String)
+    Other(String),
 }
 
 impl From<String> for Error {

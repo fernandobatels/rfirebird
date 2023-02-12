@@ -5,8 +5,8 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
 use std::rc::Rc;
 
-use crate::Error;
 use crate::page::HeaderPage;
+use crate::Error;
 use crate::Table;
 
 /// The Firebird database

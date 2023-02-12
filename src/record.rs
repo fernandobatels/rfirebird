@@ -34,7 +34,11 @@ pub struct RecordHeaderRepr {
 impl RecordHeader {
     pub fn from_bytes(bytes: Vec<u8>) -> Result<RecordHeader, Error> {
         if bytes.len() > 1024 {
-            return Err(Error::Overflow { limit: 1024, value: bytes.len(), msg: "supported data on header".to_string() });
+            return Err(Error::Overflow {
+                limit: 1024,
+                value: bytes.len(),
+                msg: "supported data on header".to_string(),
+            });
         }
 
         let rrecord: RecordHeaderRepr = unsafe { ptr::read(bytes.as_ptr() as *const _) };
@@ -138,13 +142,9 @@ pub mod tests {
 
     #[test]
     pub fn rle_decode_compressed_varchar_with_666() {
-        let data = vec![
-            0x01, 0xfe, 0xfd, 0x00, 0x02, 0x03, 0x00, 0xfd, 0x36,
-        ];
+        let data = vec![0x01, 0xfe, 0xfd, 0x00, 0x02, 0x03, 0x00, 0xfd, 0x36];
 
-        let eresult = vec![
-            0xFE, 0x00, 0x00, 0x00, 0x03, 0x00, 0x36, 0x36, 0x36,
-        ];
+        let eresult = vec![0xFE, 0x00, 0x00, 0x00, 0x03, 0x00, 0x36, 0x36, 0x36];
 
         let result = rle_decode(&data);
         assert_eq!(eresult, result);

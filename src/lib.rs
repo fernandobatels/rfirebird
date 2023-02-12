@@ -1,19 +1,19 @@
 //! Firebird raw reader
 
+mod column;
 mod data;
 mod database;
+mod error;
 mod page;
 mod record;
-mod table;
-mod column;
 mod row;
-mod error;
+mod table;
 
-pub use database::Database;
-pub use table::Table;
 pub use column::{Column, ColumnType};
-pub use row::{Row, Value};
+pub use database::Database;
 pub use error::Error;
+pub use row::{Row, Value};
+pub use table::Table;
 
 #[cfg(test)]
 pub mod tests;
