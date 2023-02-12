@@ -135,4 +135,18 @@ pub mod tests {
         let result = rle_decode(&data);
         assert_eq!(eresult, result);
     }
+
+    #[test]
+    pub fn rle_decode_compressed_varchar_with_666() {
+        let data = vec![
+            0x01, 0xfe, 0xfd, 0x00, 0x02, 0x03, 0x00, 0xfd, 0x36,
+        ];
+
+        let eresult = vec![
+            0xFE, 0x00, 0x00, 0x00, 0x03, 0x00, 0x36, 0x36, 0x36,
+        ];
+
+        let result = rle_decode(&data);
+        assert_eq!(eresult, result);
+    }
 }

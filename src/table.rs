@@ -108,6 +108,7 @@ impl<'a> TablePreparated<'a> {
                     let mut size = 0;
                     let mut scale = 0;
                     let mut tp = ColumnType::Smallint;
+                    let mut computed = false;
 
                     // Firebird have a specific table to storage
                     // the infos about columns types
@@ -127,6 +128,9 @@ impl<'a> TablePreparated<'a> {
                                 if field != source {
                                     continue;
                                 }
+
+                                let bcomputed = &frec_data[88..89];
+                                computed = bcomputed[0] > 0;
 
                                 let bsize = &frec_data[120..121];
                                 size = bsize[0] as usize;
@@ -153,7 +157,8 @@ impl<'a> TablePreparated<'a> {
                         source,
                         scale,
                         not_null,
-                        tp
+                        tp,
+                        computed
                     });
                 }
             }

@@ -12,7 +12,8 @@ pub struct Column {
     pub size: usize,
     pub scale: i16,
     pub tp: ColumnType,
-    pub not_null: bool
+    pub not_null: bool,
+    pub computed: bool
 }
 
 #[derive(Debug, Eq, PartialEq, TryFromPrimitive, Clone)]

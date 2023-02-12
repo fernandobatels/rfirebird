@@ -63,7 +63,8 @@ fn columns(
                 size: c.size,
                 tp: c.tp.clone(),
                 scale: c.scale,
-                is_not_null: c.not_null
+                is_not_null: c.not_null,
+                is_computed: c.computed
             });
 
         let printable = TabledTable::new(data)
@@ -93,5 +94,6 @@ pub struct ColumnPrintable {
     #[tabled(rename = "type")]
     pub tp: ColumnType,
     pub scale: i16,
-    pub is_not_null: bool
+    pub is_not_null: bool,
+    pub is_computed: bool
 }

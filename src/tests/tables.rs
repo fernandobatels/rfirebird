@@ -47,7 +47,8 @@ fn columns_of_table_department() -> Result<(), Error> {
             source: "DEPTNO".to_string(),
             scale: 0,
             tp: ColumnType::Char,
-            not_null: true
+            not_null: true,
+            computed: false
         }),
         ptable.columns.first()
     );
@@ -59,7 +60,8 @@ fn columns_of_table_department() -> Result<(), Error> {
             source: "BUDGET".to_string(),
             scale: -2,
             tp: ColumnType::Bigint,
-            not_null: false
+            not_null: false,
+            computed: false
         },
         ptable.columns[4]
     );
@@ -71,7 +73,8 @@ fn columns_of_table_department() -> Result<(), Error> {
             source: "PHONENUMBER".to_string(),
             scale: 0,
             tp: ColumnType::Varchar,
-            not_null: false
+            not_null: false,
+            computed: false
         }),
         ptable.columns.last()
     );
@@ -100,7 +103,8 @@ fn columns_of_table_employee() -> Result<(), Error> {
             source: "EMPNO".to_string(),
             scale: 0,
             tp: ColumnType::Smallint,
-            not_null: true
+            not_null: true,
+            computed: false
         }),
         ptable.columns.first()
     );
@@ -112,7 +116,8 @@ fn columns_of_table_employee() -> Result<(), Error> {
             source: "FIRSTNAME".to_string(),
             scale: 0,
             tp: ColumnType::Varchar,
-            not_null: true
+            not_null: true,
+            computed: false
         },
         ptable.columns[1]
     );
@@ -124,7 +129,8 @@ fn columns_of_table_employee() -> Result<(), Error> {
             source: "RDB$9".to_string(),
             scale: 0,
             tp: ColumnType::Varchar,
-            not_null: false
+            not_null: false,
+            computed: true
         }),
         ptable.columns.last()
     );
