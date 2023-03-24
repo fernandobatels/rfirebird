@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Luis Fernando Batels <luisfbatels@gmail.com>"]
 edition = "2021"
 description = "Provide a raw access to firebird database file"
+repository = "https://github.com/fernandobatels/rfirebird"
+keywords = ["firebird", "fbclient", "parse"]
+categories = ["database"]
+license = "MIT"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

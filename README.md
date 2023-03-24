@@ -1,5 +1,9 @@
 # rfirebird - Firebird tool for raw access the database files
 
+[![Crate](https://img.shields.io/crates/v/rfirebird.svg)](https://crates.io/crates/rfirebird)
+[![API](https://docs.rs/rfirebird/badge.svg)](https://docs.rs/rfirebird)
+[![github sponsors](https://img.shields.io/github/sponsors/fernandobatels)](https://github.com/sponsors/fernandobatels)
+
 This is a study and demonstration project. Only use this project with offline copy of your database file.
 
 ## Examples
